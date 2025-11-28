@@ -1,0 +1,36 @@
+.harmonium-container {
+  min-height: 100vh;
+}
+
+.load-module {
+  max-width: 500px;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.load-button {
+  background: linear-gradient(135deg, #dcb86f, #b88b35);
+  color: #32220d;
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  padding: 1.25rem 2.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+  transition: all 0.3s ease;
+}
+
+.load-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.4);
+}
+
+.load-button:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45);
+}
