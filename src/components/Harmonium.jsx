@@ -37,7 +37,8 @@ const Harmonium = () => {
     resetShruti,
     getSelectedOption,
     getJustIntonationRatios,
-    SHRUTI_DEFINITIONS
+    SHRUTI_DEFINITIONS,
+    shrutiSelection
   } = useShruti();
 
   useEffect(() => {
@@ -73,7 +74,7 @@ const Harmonium = () => {
       const ratios = getJustIntonationRatios();
       updateShrutiRatios(transpose, ratios);
     }
-  }, [transpose, isLoaded, getJustIntonationRatios, updateShrutiRatios]);
+  }, [transpose, isLoaded, shrutiSelection, updateShrutiRatios]);
 
   const handleLoad = async () => {
     const ratios = getJustIntonationRatios();
@@ -83,20 +84,10 @@ const Harmonium = () => {
 
   const handleShrutiToggle = (scaleIndex) => {
     toggleShruti(scaleIndex);
-    // Need to wait for state update, use setTimeout
-    setTimeout(() => {
-      const ratios = getJustIntonationRatios();
-      updateShrutiRatios(transpose, ratios);
-    }, 0);
   };
 
   const handleShrutiReset = () => {
     resetShruti();
-    // Need to wait for state update, use setTimeout
-    setTimeout(() => {
-      const ratios = getJustIntonationRatios();
-      updateShrutiRatios(transpose, ratios);
-    }, 0);
   };
 
   const handleVolumeChange = (e) => {
@@ -221,14 +212,29 @@ const Harmonium = () => {
                     );
                   })}
 
-                  {/* Key labels */}
-                  <text x="70" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">C</text>
-                  <text x="91" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">D</text>
-                  <text x="112" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">E</text>
-                  <text x="133" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">F</text>
-                  <text x="154" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">G</text>
-                  <text x="175" y="90" fill="blue" fontFamily="courier new" fontSize="14">A</text>
-                  <text x="196" y="90" fill="blue" fontFamily="courier new" fontWeight="bold" fontSize="14">B</text>
+                  {/* Black keys */}
+                  {['1', '2', '4', '5', '7', '8', '9', '-', '='].map((key) => {
+                    const blackKeyPositions = {
+                      '1': 15, '2': 36, '4': 78, '5': 99, '7': 141, '8': 162, '9': 183, '-': 225, '=': 246
+                    };
+                    const x = blackKeyPositions[key];
+                    return (
+                      <rect
+                        key={key}
+                        x={x}
+                        y="0"
+                        width="12"
+                        height="62"
+                        rx="1.5"
+                        className={`black ${activeKeys.has(key) ? 'active' : ''}`}
+                        onMouseDown={() => handleKeyPress(key, true)}
+                        onMouseUp={() => handleKeyPress(key, false)}
+                        onTouchStart={() => handleKeyPress(key, true)}
+                        onTouchEnd={() => handleKeyPress(key, false)}
+                      />
+                    );
+                  })}
+
                 </svg>
               </div>
             </div>

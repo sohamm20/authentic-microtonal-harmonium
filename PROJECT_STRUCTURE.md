@@ -1,9 +1,9 @@
-# Web Harmonium & Tanpura - Final Project Structure
+# Web Harmonium & Tanpura - Project Structure
 
-## Root Directory (Clean & Organized)
+## Root Directory
 
 ```
-rajaramaniyer.github.io/
+project-root/
 │
 ├── 📁 .git/                    # Git version control
 ├── 📄 .gitignore               # Git ignore rules

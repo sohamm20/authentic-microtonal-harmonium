@@ -55,8 +55,6 @@ npm run build
 
 Then commit the dist folder to deploy.
 
-## Credits
+## About
 
-Developed by Rajaraman Iyer
-
-Original features maintained from the classic Web Harmonium and Web Tanpura applications, now migrated to a modern React architecture.
+A modern web application featuring virtual Harmonium and Tanpura instruments, built with React and Web Audio API.

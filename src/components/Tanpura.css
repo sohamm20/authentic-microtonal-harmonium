@@ -1,20 +1,22 @@
 .tanpura-container {
   min-height: 100vh;
-  color: white;
+  color: #f6efe1;
 }
 
 .tanpura-container .app-header {
-  background: linear-gradient(135deg, rgba(26, 108, 122, 0.95), rgba(12, 52, 61, 0.95));
+  background: linear-gradient(135deg, rgba(67, 31, 10, 0.95), rgba(27, 14, 5, 0.95));
   padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .tanpura-container .app-header h2 {
   margin: 0;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #4fd1c5;
+  color: #dcb86f;
+  font-weight: 600;
 }
 
 .tanpura-main {
@@ -24,19 +26,22 @@
 }
 
 .tanpura-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.45));
+  border-radius: 18px;
   padding: 2rem;
   margin-bottom: 1.5rem;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08), 0 14px 26px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .tanpura-card h3 {
   margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.05em;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #dcb86f;
+  font-weight: 600;
 }
 
 .tanpura-card.center {
@@ -44,7 +49,7 @@
 }
 
 .value-display {
-  color: #4fd1c5;
+  color: #dcb86f;
   font-weight: 600;
 }
 
@@ -57,10 +62,12 @@
   appearance: none;
   width: 100%;
   height: 16px;
-  border-radius: 8px;
-  background: rgba(79, 209, 197, 0.2);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(223, 193, 123, 0.35), rgba(172, 116, 41, 0.55));
   outline: none;
   cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.45);
 }
 
 .slider::-webkit-slider-thumb {
@@ -69,19 +76,20 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #4fd1c5;
+  background: radial-gradient(circle at 30% 30%, #fef9ea 0%, #f1d797 55%, #b6822f 100%);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(68, 43, 15, 0.65);
 }
 
 .slider::-moz-range-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #4fd1c5;
+  background: radial-gradient(circle at 30% 30%, #fef9ea 0%, #f1d797 55%, #b6822f 100%);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(68, 43, 15, 0.65);
 }
 
 .switch {
@@ -104,8 +112,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.2);
-  transition: 0.4s;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.45));
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  transition: 0.3s;
 }
 
 .fancycheckbox:before {
@@ -115,12 +124,14 @@
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
+  background: radial-gradient(circle at 30% 30%, #fef7e6 0%, #e8cb85 60%, #b8842c 100%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(68, 43, 15, 0.55);
+  transition: 0.3s;
 }
 
 input:checked + .fancycheckbox {
-  background-color: #4fd1c5;
+  background: linear-gradient(135deg, rgba(221, 176, 89, 0.65), rgba(137, 89, 30, 0.85));
 }
 
 input:checked + .fancycheckbox:before {
@@ -143,60 +154,65 @@ input:checked + .fancycheckbox:before {
 
 .pitch-button {
   padding: 1.25rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid rgba(220, 184, 111, 0.3);
+  background: linear-gradient(135deg, rgba(220, 184, 111, 0.15), rgba(168, 118, 48, 0.2));
+  color: #dcb86f;
   border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 600;
+  letter-spacing: 0.05em;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .pitch-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(220, 184, 111, 0.25), rgba(168, 118, 48, 0.3));
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .pitch-button.selected {
-  background: #4fd1c5;
-  border-color: #4fd1c5;
-  color: #1a365d;
-  box-shadow: 0 6px 16px rgba(79, 209, 197, 0.4);
+  background: linear-gradient(135deg, rgba(220, 184, 111, 0.9), rgba(168, 118, 48, 0.95));
+  border-color: rgba(220, 184, 111, 0.8);
+  color: #2b1606;
+  box-shadow: 0 8px 24px rgba(220, 184, 111, 0.4);
 }
 
 .play-stop-button {
   padding: 1.5rem 4rem;
   font-size: 1.5rem;
   font-weight: 600;
-  border: none;
-  border-radius: 50px;
-  background: linear-gradient(135deg, #4fd1c5, #38b2ac);
-  color: white;
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #dcb86f, #b88b35);
+  color: #32220d;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 24px rgba(79, 209, 197, 0.3);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .play-stop-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(79, 209, 197, 0.4);
+  filter: brightness(1.08);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.4);
 }
 
 .play-stop-button:active {
   transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
 }
 
 .play-stop-button.playing {
-  background: linear-gradient(135deg, #fc8181, #f56565);
-  box-shadow: 0 8px 24px rgba(245, 101, 101, 0.3);
+  background: linear-gradient(135deg, #d9534f, #c9302c);
+  color: #fff;
+  box-shadow: 0 16px 28px rgba(217, 83, 79, 0.35);
 }
 
 .play-stop-button.playing:hover {
-  box-shadow: 0 12px 32px rgba(245, 101, 101, 0.4);
+  box-shadow: 0 20px 36px rgba(217, 83, 79, 0.45);
 }
 
 @media (max-width: 640px) {
