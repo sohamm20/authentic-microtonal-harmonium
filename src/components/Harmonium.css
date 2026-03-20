@@ -89,6 +89,7 @@ body {
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -244,7 +245,8 @@ body {
     user-select: none;
 }
 
-.white:hover {
+.white:hover,
+.white.active {
     fill: url(#whiteKeyHover);
     transform: translateY(1px);
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
@@ -260,7 +262,8 @@ body {
     user-select: none;
 }
 
-.black:hover {
+.black:hover,
+.black.active {
     fill: url(#blackKeyHover);
     transform: translateY(1px);
     filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.75));
@@ -413,11 +416,11 @@ body {
     border: 1px solid rgba(68, 43, 15, 0.55);
 }
 
-input:checked + .toggle {
+input:checked+.toggle {
     background: linear-gradient(135deg, rgba(221, 176, 89, 0.65), rgba(137, 89, 30, 0.85));
 }
 
-input:checked + .toggle::before {
+input:checked+.toggle::before {
     transform: translateX(28px);
 }
 

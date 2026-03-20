@@ -12,12 +12,30 @@ const KEYBOARD_MAP = {
 
 const Harmonium = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [volume, setVolume] = useState(30);
-  const [transpose, setTranspose] = useState(0);
-  const [octave, setOctave] = useState(3);
-  const [cents, setCents] = useState(0);
-  const [stack, setStack] = useState(0);
-  const [useReverb, setUseReverb] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).volume || 30 : 30;
+  });
+  const [transpose, setTranspose] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).transpose || 0 : 0;
+  });
+  const [octave, setOctave] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).octave || 3 : 3;
+  });
+  const [cents, setCents] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).cents || 0 : 0;
+  });
+  const [stack, setStack] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).stack || 0 : 0;
+  });
+  const [useReverb, setUseReverb] = useState(() => {
+    const saved = localStorage.getItem('harmonium.settings');
+    return saved ? JSON.parse(saved).useReverb || false : false;
+  });
   const [activeKeys, setActiveKeys] = useState(new Set());
 
   const {
@@ -75,6 +93,17 @@ const Harmonium = () => {
       updateShrutiRatios(transpose, ratios);
     }
   }, [transpose, isLoaded, shrutiSelection, updateShrutiRatios]);
+
+  useEffect(() => {
+    localStorage.setItem('harmonium.settings', JSON.stringify({
+      volume,
+      transpose,
+      octave,
+      cents,
+      stack,
+      useReverb
+    }));
+  }, [volume, transpose, octave, cents, stack, useReverb]);
 
   const handleLoad = async () => {
     const ratios = getJustIntonationRatios();
@@ -160,7 +189,7 @@ const Harmonium = () => {
           <div className="harmonium-shell">
             <div className="top-deck">
               <div className="brand-plaque">
-                <span>Rajaraman Harmonium Co.</span>
+                <span>Harmonium</span>
                 <small>Web Edition</small>
               </div>
               <div className="sound-grill"></div>
