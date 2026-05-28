@@ -9,10 +9,21 @@ const useTanpuraAudio = () => {
   const initAudioContext = useCallback(() => {
     if (!contextRef.current) {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      contextRef.current = new AudioContextClass();
+      contextRef.current = new AudioContextClass({ latencyHint: 'interactive' });
+      
       gainNodeRef.current = contextRef.current.createGain();
       gainNodeRef.current.gain.value = 0.3;
-      gainNodeRef.current.connect(contextRef.current.destination);
+
+      // Add a compressor node to prevent cracking/clipping
+      const compressor = contextRef.current.createDynamicsCompressor();
+      compressor.threshold.value = -3.0; // dB
+      compressor.knee.value = 10.0; // dB
+      compressor.ratio.value = 12.0;
+      compressor.attack.value = 0.003; // seconds
+      compressor.release.value = 0.1; // seconds
+
+      gainNodeRef.current.connect(compressor);
+      compressor.connect(contextRef.current.destination);
     }
     return contextRef.current;
   }, []);
@@ -28,6 +39,10 @@ const useTanpuraAudio = () => {
     }
 
     if (!contextRef.current || !audioBufferRef.current) return;
+
+    if (contextRef.current.state === 'suspended') {
+      contextRef.current.resume();
+    }
 
     sourceNodeRef.current = contextRef.current.createBufferSource();
     sourceNodeRef.current.connect(gainNodeRef.current);

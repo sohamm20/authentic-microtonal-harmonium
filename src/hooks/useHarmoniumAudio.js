@@ -9,9 +9,10 @@ const useHarmoniumAudio = () => {
   const contextRef = useRef(null);
   const audioBufferRef = useRef(null);
   const gainNodeRef = useRef(null);
+  const compressorNodeRef = useRef(null);
   const reverbNodeRef = useRef(null);
-  const sourceNodesRef = useRef([]);
-  const sourceNodeStateRef = useRef([]);
+  const sourceNodesRef = useRef([]); // Stores `{ source, gainNode }`
+  const sourceNodeStateRef = useRef([]); // Stores 0/1 status
   const keyMapRef = useRef([]);
   const baseKeyMapRef = useRef([]);
   const currentOctaveRef = useRef(3); // Default octave 3 (matching original)
@@ -20,16 +21,30 @@ const useHarmoniumAudio = () => {
   const useReverbRef = useRef(false);
 
   const initAudioContext = useCallback(() => {
+    if (contextRef.current) return contextRef.current;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    contextRef.current = new AudioContextClass();
+    contextRef.current = new AudioContextClass({ latencyHint: 'interactive' });
     return contextRef.current;
   }, []);
 
   const initGainNode = useCallback((initialGain = 0.3) => {
     if (!contextRef.current) return null;
+    if (gainNodeRef.current) return gainNodeRef.current;
+    
     gainNodeRef.current = contextRef.current.createGain();
     gainNodeRef.current.gain.value = initialGain;
-    gainNodeRef.current.connect(contextRef.current.destination);
+    
+    // Create master compressor to prevent sound cracking/clipping
+    compressorNodeRef.current = contextRef.current.createDynamicsCompressor();
+    compressorNodeRef.current.threshold.value = -3.0; // dB
+    compressorNodeRef.current.knee.value = 10.0; // dB
+    compressorNodeRef.current.ratio.value = 12.0;
+    compressorNodeRef.current.attack.value = 0.003; // seconds
+    compressorNodeRef.current.release.value = 0.1; // seconds
+
+    gainNodeRef.current.connect(compressorNodeRef.current);
+    compressorNodeRef.current.connect(contextRef.current.destination);
+
     return gainNodeRef.current;
   }, []);
 
@@ -64,6 +79,10 @@ const useHarmoniumAudio = () => {
         reject(new Error('Audio context not initialized'));
         return;
       }
+      if (reverbNodeRef.current) {
+        resolve(reverbNodeRef.current);
+        return;
+      }
 
       reverbNodeRef.current = contextRef.current.createConvolver();
 
@@ -76,7 +95,8 @@ const useHarmoniumAudio = () => {
           request.response,
           function (buffer) {
             reverbNodeRef.current.buffer = buffer;
-            reverbNodeRef.current.connect(contextRef.current.destination);
+            // Connect reverb to compressor instead of direct destination
+            reverbNodeRef.current.connect(compressorNodeRef.current);
             resolve(reverbNodeRef.current);
           },
           function (e) {
@@ -143,65 +163,97 @@ const useHarmoniumAudio = () => {
       keyMapRef.current[i] = getJustIntonationCents(i, transpose, ratios);
     }
 
-    for (let i = 0; i < keyMapRef.current.length; ++i) {
+    const sourceNodesLength = sourceNodesRef.current.length;
+    for (let i = 0; i < 128; ++i) {
+      if (i < sourceNodesLength && sourceNodesRef.current[i]) {
+        try {
+          sourceNodesRef.current[i].source.stop(0);
+        } catch (e) {}
+      }
       sourceNodesRef.current[i] = null;
       sourceNodeStateRef.current[i] = 0;
     }
   }, [getJustIntonationCents]);
 
-  const setSourceNode = useCallback((index) => {
-    if (sourceNodesRef.current[index] != null && sourceNodeStateRef.current[index] == 1) {
-      sourceNodesRef.current[index].stop(0);
+  const stopNoteAtIdx = useCallback((index) => {
+    const activeNode = sourceNodesRef.current[index];
+    if (activeNode) {
+      const { source, gainNode } = activeNode;
+      try {
+        const now = contextRef.current.currentTime;
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.015);
+        source.stop(now + 0.015);
+      } catch (err) {
+        try {
+          source.stop(0);
+        } catch (e) {}
+      }
+      sourceNodesRef.current[index] = null;
+    }
+    sourceNodeStateRef.current[index] = 0;
+  }, []);
+
+  const startNoteAtIdx = useCallback((index) => {
+    stopNoteAtIdx(index);
+
+    if (contextRef.current && contextRef.current.state === 'suspended') {
+      contextRef.current.resume();
     }
 
-    sourceNodeStateRef.current[index] = 0;
-    sourceNodesRef.current[index] = null;
-    sourceNodesRef.current[index] = contextRef.current.createBufferSource();
-    sourceNodesRef.current[index].connect(gainNodeRef.current).connect(contextRef.current.destination);
-    sourceNodesRef.current[index].buffer = audioBufferRef.current;
-    sourceNodesRef.current[index].loop = true;
-    sourceNodesRef.current[index].loopStart = LOOP_START;
+    const source = contextRef.current.createBufferSource();
+    source.buffer = audioBufferRef.current;
+    source.loop = true;
+    source.loopStart = LOOP_START;
 
     if (keyMapRef.current[index] != 0) {
-      sourceNodesRef.current[index].detune.value = keyMapRef.current[index] + globalCentsOffsetRef.current;
+      source.detune.value = keyMapRef.current[index] + globalCentsOffsetRef.current;
     } else {
-      sourceNodesRef.current[index].detune.value = globalCentsOffsetRef.current;
+      source.detune.value = globalCentsOffsetRef.current;
     }
-  }, []);
+
+    const noteGain = contextRef.current.createGain();
+    noteGain.gain.setValueAtTime(0, contextRef.current.currentTime);
+    noteGain.gain.linearRampToValueAtTime(1, contextRef.current.currentTime + 0.002);
+
+    source.connect(noteGain);
+    noteGain.connect(gainNodeRef.current);
+
+    source.start(0);
+
+    sourceNodesRef.current[index] = { source, gainNode: noteGain };
+    sourceNodeStateRef.current[index] = 1;
+  }, [stopNoteAtIdx]);
 
   const noteOn = useCallback((note) => {
     let i = note + OCTAVE_MAP[currentOctaveRef.current];
 
-    if (i < sourceNodesRef.current.length && sourceNodeStateRef.current[i] == 0) {
-      setSourceNode(i);
-      sourceNodesRef.current[i].start(0);
-      sourceNodeStateRef.current[i] = 1;
+    if (i < sourceNodeStateRef.current.length && sourceNodeStateRef.current[i] == 0) {
+      startNoteAtIdx(i);
     }
 
     for (let c = 1; c <= stackCountRef.current; ++c) {
       i = note + OCTAVE_MAP[currentOctaveRef.current + c];
-      if (i < sourceNodesRef.current.length && sourceNodeStateRef.current[i] == 0) {
-        setSourceNode(i);
-        sourceNodesRef.current[i].start(0);
-        sourceNodeStateRef.current[i] = 1;
+      if (i < sourceNodeStateRef.current.length && sourceNodeStateRef.current[i] == 0) {
+        startNoteAtIdx(i);
       }
     }
-  }, [setSourceNode]);
+  }, [startNoteAtIdx]);
 
   const noteOff = useCallback((note) => {
     let i = note + OCTAVE_MAP[currentOctaveRef.current];
 
-    if (i < sourceNodesRef.current.length) {
-      setSourceNode(i);
+    if (i < sourceNodeStateRef.current.length) {
+      stopNoteAtIdx(i);
     }
 
     for (let c = 1; c <= stackCountRef.current; ++c) {
       i = note + OCTAVE_MAP[currentOctaveRef.current + c];
-      if (i < sourceNodesRef.current.length) {
-        setSourceNode(i);
+      if (i < sourceNodeStateRef.current.length) {
+        stopNoteAtIdx(i);
       }
     }
-  }, [setSourceNode]);
+  }, [stopNoteAtIdx]);
 
   const setGain = useCallback((value) => {
     if (gainNodeRef.current !== null) {
@@ -228,11 +280,13 @@ const useHarmoniumAudio = () => {
   const setGlobalCents = useCallback((cents) => {
     globalCentsOffsetRef.current = cents;
     for (let i = 0; i < sourceNodesRef.current.length; ++i) {
-      if (sourceNodesRef.current[i] && sourceNodeStateRef.current[i] === 1) {
+      const activeNode = sourceNodesRef.current[i];
+      if (activeNode && sourceNodeStateRef.current[i] === 1) {
+        const source = activeNode.source;
         if (keyMapRef.current[i] != 0) {
-          sourceNodesRef.current[i].detune.value = keyMapRef.current[i] + globalCentsOffsetRef.current;
+          source.detune.value = keyMapRef.current[i] + globalCentsOffsetRef.current;
         } else {
-          sourceNodesRef.current[i].detune.value = globalCentsOffsetRef.current;
+          source.detune.value = globalCentsOffsetRef.current;
         }
       }
     }

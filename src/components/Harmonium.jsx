@@ -62,19 +62,19 @@ const Harmonium = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!e.repeat && KEYBOARD_MAP[e.key] !== undefined) {
-        setActiveKeys(prev => new Set(prev).add(e.key));
         noteOn(KEYBOARD_MAP[e.key]);
+        setActiveKeys(prev => new Set(prev).add(e.key));
       }
     };
 
     const handleKeyUp = (e) => {
       if (KEYBOARD_MAP[e.key] !== undefined) {
+        noteOff(KEYBOARD_MAP[e.key]);
         setActiveKeys(prev => {
           const newSet = new Set(prev);
           newSet.delete(e.key);
           return newSet;
         });
-        noteOff(KEYBOARD_MAP[e.key]);
       }
     };
 
